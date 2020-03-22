@@ -143,45 +143,13 @@ public class OrderController
         OrderService orderService = applicationContext.getBean(OrderService.class);
         return orderService.custimebuy(request);
     }
-    /*public  List<order_out_structure> querycart(HttpServletRequest request)
-    {
-        ServletContext servletContext=request.getServletContext();
-        String title = servletContext.getAttribute("username").toString();
-        Integer userid=userRepository.findByUsername(title).getUserid();
-        List<Order> orders=orderRepository.findByUserid(userid);
-        List<Order> middle = new ArrayList<Order>();
-        List<order_out_structure> output=new ArrayList<order_out_structure>();
-        List<OrderItem> orderItems =new ArrayList<OrderItem>();
-        order_out_structure the_temp_out= new order_out_structure();
-        Order temp_order= new Order();
-        OrderItem temp_orderitem=new OrderItem();
-        Books book =new Books();
-        for(Integer i=0;i<orders.size();i++)
-        {
 
-            if(orders.get(i).paid==0)
-                middle.add(orders.get(i));
-        }
-        for(Integer i=0;i<middle.size();i++)
-        {
-            temp_order=middle.get(i);
-            the_temp_out.orderid=temp_order.orderid;
-            the_temp_out.ordertime=temp_order.ordertime;
-            orderItems=orderItemRepository.findByOrderid(temp_order.orderid);
-            for(Integer j=0;j<orderItems.size();j++)
-            {
-                temp_orderitem=orderItems.get(j);
-                the_temp_out.number=temp_orderitem.number;
-                book=bookRepository.findByBookid(temp_orderitem.bookid);
-                the_temp_out.bookname=book.getName();
-                the_temp_out.price=the_temp_out.number*book.getPrice();
-                output.add(the_temp_out);
+    @RequestMapping("orderkafka/{userid}/{bookname}/{booknumber}")
+    public String orderkafka(@PathVariable("userid") Integer userid, @PathVariable("bookname") String bookname, @PathVariable("booknumber") Integer booknumber)throws Exception{
+        OrderService orderService = applicationContext.getBean(OrderService.class);
 
-            }
-        }
-
-        return output;
-    }*///浅拷贝 无法使用
+        return orderService.orderkafka(userid,bookname,booknumber);
+    }
 
 
 }

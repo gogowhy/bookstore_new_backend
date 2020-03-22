@@ -92,6 +92,9 @@ public class OrderServiceImpl implements OrderService {
         return orderDao.custimebuy(request);
     }
 
-
-
+    @Override
+    public  String orderkafka(Integer userid,String bookname, Integer booknumber)throws Exception
+    {
+        return  orderDao.orderkafka(userid,bookname,booknumber);
+    }
 }

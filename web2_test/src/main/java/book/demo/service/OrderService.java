@@ -46,4 +46,6 @@ public interface OrderService {
     String allbooksalestimes(HttpServletRequest request);
 
     String custimebuy(HttpServletRequest request);
+
+    String orderkafka(Integer userid,String bookname, Integer booknumber) throws Exception;
 }

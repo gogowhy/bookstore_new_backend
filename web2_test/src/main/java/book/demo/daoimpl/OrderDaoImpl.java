@@ -7,6 +7,16 @@ import book.demo.entity.OrderItem;
 import book.demo.entity.Cart;
 import book.demo.entity.order_out_structure;
 import book.demo.repository.*;
+import com.alibaba.fastjson.JSON;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.common.errors.AuthorizationException;
+import org.apache.kafka.common.errors.OutOfOrderSequenceException;
+import org.apache.kafka.common.errors.ProducerFencedException;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +27,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 @Repository
 public class OrderDaoImpl implements OrderDao {
@@ -31,6 +42,9 @@ public class OrderDaoImpl implements OrderDao {
     public BookRepository bookRepository;
     @Autowired
     public CartRepository cartRepository;
+
+
+
 
     @Override
     public List<Order> queryAll(){
@@ -232,46 +246,6 @@ public class OrderDaoImpl implements OrderDao {
                 output.add(temp_out);
 
         }
-
-       /* List<Order> orders=orderRepository.findAll();
-        List<Order> middle = new ArrayList<Order>();
-        List<order_out_structure> output=new ArrayList<order_out_structure>();
-        for(Integer i=0;i<orders.size();i++)
-        {
-
-            if(orders.get(i).paid==1)
-                middle.add(orders.get(i));
-        }//middle里面存储的是所有paid的订单状态的order
-        for(Integer i=0;i<middle.size();i++)
-        {
-            //String ordertime=middle.get(i).ordertime;
-            // Integer orderid =middle.get(i).orderid;
-            List<OrderItem> orderItems =orderItemRepository.findByOrderid(middle.get(i).orderid);
-            //找到当前orderid对应的orderitem的集合
-            for(Integer j=0;j<orderItems.size();j++)
-            {
-                String ordertime=middle.get(i).ordertime;
-                Integer orderid =middle.get(i).orderid;
-                Integer the_userid=middle.get(i).userid;
-                Books book =new Books();
-                book=bookRepository.findByBookid(orderItems.get(j).bookid);
-                String bookname=book.getName();
-                Integer number =orderItems.get(j).number;
-                Integer oneprice=book.getPrice();
-                Integer price =number*oneprice;
-                order_out_structure the_temp_out= new order_out_structure();
-                the_temp_out.orderid=orderid;
-                the_temp_out.bookname=bookname;
-                the_temp_out.price=price;
-                the_temp_out.ordertime=ordertime;
-                the_temp_out.number=number;
-
-                the_temp_out.userid=the_userid;
-                output.add(the_temp_out);
-            }
-
-        }
-*/
 
 
 
@@ -551,44 +525,46 @@ public class OrderDaoImpl implements OrderDao {
 }
 
 
-    /*public  List<order_out_structure> querycart(HttpServletRequest request)
-    {
-        ServletContext servletContext=request.getServletContext();
-        String title = servletContext.getAttribute("username").toString();
-        Integer userid=userRepository.findByUsername(title).getUserid();
-        List<Order> orders=orderRepository.findByUserid(userid);
-        List<Order> middle = new ArrayList<Order>();
-        List<order_out_structure> output=new ArrayList<order_out_structure>();
-        List<OrderItem> orderItems =new ArrayList<OrderItem>();
-        order_out_structure the_temp_out= new order_out_structure();
-        Order temp_order= new Order();
-        OrderItem temp_orderitem=new OrderItem();
-        Books book =new Books();
-        for(Integer i=0;i<orders.size();i++)
-        {
+   @Override
+   public String orderkafka(Integer userid, String bookname, Integer booknumber) throws Exception
+   {
+       Properties props = new Properties();
+       props.put("bootstrap.servers", "localhost:9092");
+       props.setProperty("transactional.id", "my-transactional-id");
 
-            if(orders.get(i).paid==0)
-                middle.add(orders.get(i));
-        }
-        for(Integer i=0;i<middle.size();i++)
-        {
-            temp_order=middle.get(i);
-            the_temp_out.orderid=temp_order.orderid;
-            the_temp_out.ordertime=temp_order.ordertime;
-            orderItems=orderItemRepository.findByOrderid(temp_order.orderid);
-            for(Integer j=0;j<orderItems.size();j++)
-            {
-                temp_orderitem=orderItems.get(j);
-                the_temp_out.number=temp_orderitem.number;
-                book=bookRepository.findByBookid(temp_orderitem.bookid);
-                the_temp_out.bookname=book.getName();
-                the_temp_out.price=the_temp_out.number*book.getPrice();
-                output.add(the_temp_out);
+       Producer<String, String> producer = null;
 
-            }
-        }
+       try{
+           producer = new KafkaProducer<String, String>(props, new StringSerializer(), new StringSerializer());
+           producer.initTransactions();
+           producer.beginTransaction();
 
-        return output;
-    }*///浅拷贝 无法使用
+           List list = new ArrayList();
+           list.add(userid);
+           list.add(bookname);
+           list.add(booknumber);
+
+           //String str = JSON.toJSONString(list).toString();
+           System.out.println(list);
+          // System.out.println(str);
+
+           producer.send(new ProducerRecord<>("test", "orderkafkatest", "Message " + list));
+
+
+           producer.commitTransaction();
+
+       }catch (ProducerFencedException e) {
+           producer.close();
+       } catch (OutOfOrderSequenceException e) {
+           producer.close();
+       } catch (AuthorizationException e) {
+           producer.close();
+       } catch (KafkaException e) {
+           producer.abortTransaction();
+       }
+       producer.close();
+       return "your order is being processed, please wait. You can check the order information in your order list.";
+   }
+
 
 }

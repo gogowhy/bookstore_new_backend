@@ -11,6 +11,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import book.demo.entity.orderkafka;
 @Repository
 public interface OrderDao {
 
@@ -38,4 +39,7 @@ public interface OrderDao {
     String allbooksalestimes(HttpServletRequest request);
 
     String custimebuy(HttpServletRequest request);
+    String orderkafka(Integer userid,String bookname, Integer booknumber)throws Exception;
+
+    //void  orderkafkasave(orderkafka kafkao);
 }
