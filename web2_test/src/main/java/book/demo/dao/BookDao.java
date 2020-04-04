@@ -45,4 +45,7 @@ void setpicture(Integer id,String picture);
 String querythebookpicture(HttpServletRequest request);
 String rmiquery(String bookname);
 Books redisquery(Integer bookid);
+    void solrquery(Integer bookisbn);
+    void solradd(String isbn,String name ,Integer price,String author,
+             Integer repertory,String description);
 }

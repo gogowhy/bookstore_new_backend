@@ -2,6 +2,8 @@ package book.demo.entity;
 import book.demo.repository.*;
 import book.demo.entity.*;
 import book.demo.controller.*;
+import org.apache.solr.client.solrj.beans.Field;
+
 import javax.persistence.*;
 
 @Entity
@@ -9,30 +11,37 @@ import javax.persistence.*;
 
 public class Books {
     //自增ID
+    @Field
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookid;
 
+    @Field
     @Column(name="isbn")
     private String isbn;
 
+    @Field
     @Column(name = "bookname")
     private String bookname;
 
+    @Field
     @Column(name="price")
     private Integer price;
 
+    @Field
     @Column(name="author")
     private String author;
 
+    @Field
     @Column(name="repertory")
     private Integer repertory;
 
 
+    @Field
     @Column(name="description")
     private String description;
 
-
+    @Field
     @Column(name="picture")
     private String picture;
 

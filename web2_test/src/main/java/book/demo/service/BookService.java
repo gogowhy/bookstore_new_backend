@@ -47,5 +47,8 @@ public interface BookService extends Remote {
     String querythebookpicture (HttpServletRequest request)throws RemoteException;
     String rmiquery(String bookname)throws RemoteException;
     Books redisquery(Integer bookid);
+    void solradd(String isbn,String name ,Integer price,String author,
+                 Integer repertory,String description);
+    void solrquery(Integer bookisbn);
 }
 

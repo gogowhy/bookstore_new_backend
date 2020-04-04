@@ -143,5 +143,15 @@ public class BookServiceImpl implements BookService {
         return  bookDao.redisquery(bookid);
     }
 
+    @Override
+    public void solrquery(Integer bookisbn)
+    {
+        bookDao.solrquery(bookisbn);
+    }
 
+    @Override
+    public  void solradd( String isbn,String name ,
+                      Integer price,String author,
+                      Integer repertory,String description) {
+        bookDao.solradd( isbn,  name,price,author,repertory, description)     ;}
 }

@@ -178,4 +178,23 @@ public class BookController{
         BookService bookService = applicationContext.getBean(BookService.class);
         return bookService.redisquery(bookid);
     }
+
+    @RequestMapping("solradd/{isbn}/{name}/{price}/{author}/{repertory}/{description}")
+    @ResponseBody
+    public  void solradd(@PathVariable("isbn") String isbn, @PathVariable("name")String name ,
+                     @PathVariable("price") Integer price,@PathVariable("author")String author,
+                     @PathVariable("repertory") Integer repertory,@PathVariable("description") String description){
+        BookService bookService = applicationContext.getBean(BookService.class);
+        bookService.solradd(isbn,name,price,author,repertory,description);
+    }
+
+    @RequestMapping("solrquery/{isbn}")
+    @ResponseBody
+    public void solrquery(@PathVariable("isbn") Integer bookisbn)
+    {
+        BookService bookService = applicationContext.getBean(BookService.class);
+        bookService.solrquery(bookisbn);
+    }
+
+
 }

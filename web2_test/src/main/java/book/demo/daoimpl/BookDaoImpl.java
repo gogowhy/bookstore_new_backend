@@ -11,6 +11,13 @@ import book.demo.service.*;
 import book.demo.serviceimpl.*;
 
 import com.alibaba.fastjson.JSONArray;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.MapSolrParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,14 +25,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.print.Book;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 import org.springframework.stereotype.Repository;
 import book.demo.Util.RedisUtil;
 
-import java.util.Date;
 import java.text.SimpleDateFormat;
-
 
 
 @Repository
@@ -448,6 +453,73 @@ public String querythebookpicture(HttpServletRequest request)
     return books;
 
 }
+
+@Override
+public void solradd(String isbn,String name ,Integer price,String author,
+                    Integer repertory,String description)
+{
+    try{
+        final SolrClient client = getSolrClient();
+        final Books books = new Books();
+        books.setIsbn(isbn);
+        books.setName(name);
+        books.setPrice(price);
+        books.setAuthor(author);
+        books.setRepertory(repertory);
+        books.setDescription(description);
+
+
+        final UpdateResponse response = client.addBean("book2",books);
+        client.commit("book2");
+    }
+    catch (Exception e)
+    {
+        e.printStackTrace();
+    }
+    System.out.println("save ok");
+}
+@Override
+    public void solrquery(Integer bookisbn)
+{
+    try{
+        final SolrClient client = getSolrClient();
+
+
+        final Map<String, String> queryParamMap = new HashMap<String, String>();
+        queryParamMap.put("q", "isbn:"+bookisbn);
+        queryParamMap.put("fl", "name,description");
+        queryParamMap.put("sort", "isbn asc");
+        MapSolrParams queryParams = new MapSolrParams(queryParamMap);
+
+        final QueryResponse response = client.query("book2", queryParams);
+        final SolrDocumentList documents = response.getResults();
+
+        System.out.println("Found " + documents.getNumFound() + " documents");
+        for (SolrDocument document : documents) {
+            final String isbn = (String) document.getFirstValue("isbn");
+            final String name = (String) document.getFirstValue("name");
+            final String description = (String) document.getFirstValue("description");
+
+            System.out.println("isbn: " + bookisbn + "; name: " +name+"; description: "+description);
+
+        }
+    }
+    catch (Exception e)
+    {
+        e.printStackTrace();
+    }
+
+}
+
+
+
+    public static SolrClient getSolrClient() {
+        final String solrUrl = "http://localhost:8983/solr";
+        return new HttpSolrClient.Builder(solrUrl)
+                .withConnectionTimeout(10000)
+                .withSocketTimeout(60000)
+                .build();
+    }
 
 
 }
