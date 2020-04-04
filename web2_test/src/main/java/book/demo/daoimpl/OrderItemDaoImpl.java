@@ -5,6 +5,9 @@ import book.demo.entity.OrderItem;
 import book.demo.repository.OrderItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -28,6 +31,7 @@ public class OrderItemDaoImpl implements OrderItemDao {
     }
 
    @Override
+   @Transactional(isolation = Isolation.READ_COMMITTED,propagation = Propagation.REQUIRED)
     public void addorderitem( Integer userid,  Integer orderid,
                             Integer bookid, Integer number)
     {

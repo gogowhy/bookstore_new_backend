@@ -46,5 +46,6 @@ public interface BookService extends Remote {
     void setpicture(Integer id,String picture)throws RemoteException;
     String querythebookpicture (HttpServletRequest request)throws RemoteException;
     String rmiquery(String bookname)throws RemoteException;
+    Books redisquery(Integer bookid);
 }
 

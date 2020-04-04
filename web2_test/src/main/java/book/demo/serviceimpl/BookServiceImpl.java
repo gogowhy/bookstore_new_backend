@@ -137,5 +137,11 @@ public class BookServiceImpl implements BookService {
         return bookDao.rmiquery(bookname);
     }
 
+    @Override
+    public Books redisquery(Integer bookid)
+    {
+        return  bookDao.redisquery(bookid);
+    }
+
 
 }

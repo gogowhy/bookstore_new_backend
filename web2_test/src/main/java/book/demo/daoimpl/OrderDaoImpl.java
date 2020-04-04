@@ -19,6 +19,8 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -451,6 +453,7 @@ public class OrderDaoImpl implements OrderDao {
     }
 
 @Override
+@Transactional(propagation = Propagation.REQUIRES_NEW)
     public String custimebuy(HttpServletRequest request)
 {
     String year_query =request.getParameter("year");

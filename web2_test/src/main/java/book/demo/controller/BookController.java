@@ -169,4 +169,13 @@ public class BookController{
         BookService bookService = applicationContext.getBean(BookService.class);
         return bookService.querythebookpicture(request);
     }
+
+
+    @RequestMapping("redisquery/{id}")
+    @ResponseBody
+    public Books redisquery(@PathVariable("id") Integer bookid)
+    {
+        BookService bookService = applicationContext.getBean(BookService.class);
+        return bookService.redisquery(bookid);
+    }
 }

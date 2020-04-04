@@ -10,6 +10,7 @@ import book.demo.daoimpl.*;
 import book.demo.service.*;
 import book.demo.serviceimpl.*;
 
+import com.alibaba.fastjson.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +21,12 @@ import java.awt.print.Book;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
+import book.demo.Util.RedisUtil;
 
 import java.util.Date;
 import java.text.SimpleDateFormat;
+
+
 
 @Repository
 public class BookDaoImpl implements BookDao {
@@ -40,6 +44,9 @@ public class BookDaoImpl implements BookDao {
 
     @Autowired
     private CartRepository cartRepository;
+
+    @Autowired
+    RedisUtil redisUtil;
 
 
 @Override
@@ -419,5 +426,28 @@ public String querythebookpicture(HttpServletRequest request)
     String description = book.getDescription();
     return  description;
 }
+
+@Override
+    public Books redisquery(Integer bookid)
+{
+    Books books = null;
+    System.out.println("Searching the book:"+ bookid+ "in Redis");
+    Object p = redisUtil.get("book"+bookid);
+    if(p==null)
+    {
+        System.out.println("Book:"+ bookid +"is not in Redis");
+        System.out.println("Searching Book: " + bookid + " in DB");
+        books = bookRepository.findByBookid(bookid);
+        redisUtil.set("book"+bookid, JSONArray.toJSON(books));
+    }
+    else
+    {
+        books = JSONArray.parseObject(p.toString(), Books.class);
+        System.out.println("Book:"+bookid+"is in Redis");
+    }
+    return books;
+
+}
+
 
 }
